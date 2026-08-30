@@ -1,4 +1,4 @@
-package com.smartgarage.smart_garage_api.enums;
+package com.smartgarage.api.enums;
 
 public enum PaymentMethod {
     CASH,
