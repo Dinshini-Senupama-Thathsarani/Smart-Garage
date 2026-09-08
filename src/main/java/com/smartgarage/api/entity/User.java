@@ -1,6 +1,5 @@
 package com.smartgarage.api.entity;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.smartgarage.api.enums.Role;
 import jakarta.persistence.*;
