@@ -67,3 +67,8 @@ The app starts on **http://localhost:8082**.
 - `POST /api/v1/auth/login` — returns a JWT
 
 Send the token on subsequent requests as:
+
+
+
+## Postman
+https://dinshinisenupama737-6397775.postman.co/workspace/Dinshini-Senupama's-Workspace~1475e2b6-bf39-4a14-81fb-55ce3cc52d94/collection/55297692-625abbe7-8996-426d-bd06-8174bbe01f6d?action=share&source=copy-link&creator=55297692
