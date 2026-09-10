@@ -24,12 +24,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/**
- * Validates the JWT on each request. Matches the reference project's pattern:
- * specific JWT exceptions (expired / bad signature / malformed) are caught
- * individually and turned into a clean CommonResponse JSON body instead of
- * bubbling up as a generic 500 error.
- */
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
