@@ -33,8 +33,8 @@ public class SecurityConfig {
             "/api/v1/service-types/**",
             "/",
             "/index.html",
-            "/css/**",
-            "/js/**",
+            "/static/css/**",
+            "/static/js/**",
             "/favicon.ico"
     };
 

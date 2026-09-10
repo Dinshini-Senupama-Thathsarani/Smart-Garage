@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Garage &amp; Spare Parts Management</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ AUTH SCREEN ============ -->
+<div id="authShell" class="auth-shell">
+
+    <!-- decorative coupe line-art, no functional role -->
+    <svg class="auth-car" viewBox="0 0 400 160" aria-hidden="true">
+        <path d="M18 118 Q8 88 42 82 L72 52 Q102 30 165 30 L258 30 Q300 30 332 58 L368 82 Q390 88 384 118 Z" fill="none" stroke="#E23784" stroke-width="3"/>
+        <path d="M96 82 L128 50 Q148 38 178 38 L232 38" fill="none" stroke="#E23784" stroke-width="2.5"/>
+        <path d="M42 82 L368 82" fill="none" stroke="#E23784" stroke-width="1.5" opacity="0.5"/>
+        <circle cx="104" cy="122" r="24" fill="none" stroke="#E23784" stroke-width="4"/>
+        <circle cx="300" cy="122" r="24" fill="none" stroke="#E23784" stroke-width="4"/>
+        <circle cx="104" cy="122" r="9" fill="#E23784" opacity="0.6"/>
+        <circle cx="300" cy="122" r="9" fill="#E23784" opacity="0.6"/>
+    </svg>
+
+    <div class="auth-card">
+        <div class="auth-brand">
+            <span class="display">SMART<br>GARAGE</span>
+        </div>
+        <div class="tag">SPARE PARTS &amp; SERVICE MANAGEMENT — TICKET SYSTEM</div>
+        <p class="auth-sub" id="authSubtitle">Sign in to open a work order.</p>
+
+        <div id="authError" class="auth-error" style="display:none;"></div>
+
+        <!-- Login form -->
+        <form id="loginForm">
+            <div class="field">
+                <label>Username</label>
+                <input type="text" id="loginUsername" required autocomplete="username">
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <input type="password" id="loginPassword" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+        </form>
+
+        <!-- Register form -->
+        <form id="registerForm" style="display:none;">
+            <div class="field">
+                <label>Full Name</label>
+                <input type="text" id="regFullName" required>
+            </div>
+            <div class="field">
+                <label>Username</label>
+                <input type="text" id="regUsername" required>
+            </div>
+            <div class="field">
+                <label>Email</label>
+                <input type="email" id="regEmail" required>
+            </div>
+            <div class="field">
+                <label>Phone</label>
+                <input type="text" id="regPhone">
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <input type="password" id="regPassword" required minlength="6">
+            </div>
+            <div class="field">
+                <label>Account Type</label>
+                <select id="regRole">
+                    <option value="CUSTOMER">Customer</option>
+                    <option value="MECHANIC">Mechanic</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+        </form>
+
+        <div class="auth-toggle">
+            <span id="toggleText">Don't have an account?</span>
+            <button type="button" id="toggleAuthBtn">Register</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ APP SHELL ============ -->
+<div id="appShell" class="app-shell" style="display:none;">
+    <header class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="display">SMART GARAGE</div>
+            <div class="tag">WORK ORDER SYSTEM</div>
+        </div>
+        <nav class="nav" id="navList"></nav>
+        <div class="sidebar-user">
+            <div class="name" id="sidebarUsername">—</div>
+            <span class="role-chip" id="sidebarRole">—</span>
+        </div>
+        <button class="logout-btn" id="logoutBtn">&larr; Sign out</button>
+    </header>
+
+    <div class="main">
+        <div class="topbar">
+            <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="content" id="content">
+            <div class="loading">Loading…</div>
+        </div>
+
+        <footer class="site-footer">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="display" style="font-size:20px;color:#fff">SMART GARAGE</div>
+                    <p class="footer-tag">Smart Service. Better Care.</p>
+                    <div class="social-row">
+                        <a class="social-icon" href="#" aria-label="facebook"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M13 21v-8h2.6l.4-3H13V8.2c0-.9.3-1.5 1.6-1.5H16V4.1C15.6 4 14.6 4 13.6 4 11.4 4 10 5.3 10 7.8V10H7.4v3H10v8h3z" fill="currentColor"/></svg></a>
+                        <a class="social-icon" href="#" aria-label="instagram"><svg viewBox="0 0 24 24" width="16" height="16"><rect x="4" y="4" width="16" height="16" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="16.6" cy="7.4" r="1" fill="currentColor"/></svg></a>
+                        <a class="social-icon" href="#" aria-label="whatsapp"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.7-1.2A9 9 0 1 0 12 3z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8.5 8.6c.2-.4.5-.4.7-.4h.5c.2 0 .4 0 .6.4.2.5.7 1.6.7 1.7.1.1.1.3 0 .4-.1.2-.2.3-.3.5-.1.1-.3.3-.1.6.2.4 1 1.5 2.1 2.4 1.4 1.1 1.7 1 1.9.9.2-.1.9-1 1.1-1.3.2-.3.4-.2.7-.1.3.1 1.7.8 2 .9.3.2.5.2.6.4.1.2.1.9-.2 1.5-.3.6-1.6 1.3-2.2 1.3-.6 0-1.4.1-4.5-1.9-2.5-1.6-3.7-3.9-3.9-4.3-.2-.4-1.2-1.8-1.2-3.1 0-1.3.6-1.9.8-2.2z" fill="currentColor"/></svg></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <div class="footer-heading">Need Help?</div>
+                    <div class="footer-line">123 Workshop Road, Colombo</div>
+                    <div class="footer-line"><a href="mailto:support@smartgarage.lk">support@smartgarage.lk</a></div>
+                    <div class="footer-line"><a href="tel:+94770000000">+94 77 000 0000</a></div>
+                </div>
+                <div class="footer-col">
+                    <div class="footer-heading">Quick Links</div>
+                    <div class="footer-line footer-link" data-goto="sparepartscatalog">Spare Parts Catalog</div>
+                    <div class="footer-line footer-link" data-goto="contact">Contact Us</div>
+                </div>
+            </div>
+            <div class="footer-bottom">© 2026 Smart Garage. All rights reserved. · Placeholder contact details — edit in index.html.</div>
+        </footer>
+    </div>
+</div>
+
+<div id="toastHost"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="js/helpers.js"></script>
+<script src="js/crud.js"></script>
+<script src="js/views.js"></script>
+<script src="js/views-fleet.js"></script>
+<script src="js/views-jobcards.js"></script>
+<script src="js/views-billing.js"></script>
+<script src="js/views-customer.js"></script>
+<script src="js/views-site.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
