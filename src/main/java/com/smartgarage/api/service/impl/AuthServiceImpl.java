@@ -9,13 +9,11 @@ import com.smartgarage.api.enums.Role;
 import com.smartgarage.api.exception.DuplicateResourceException;
 import com.smartgarage.api.repository.CustomerRepository;
 import com.smartgarage.api.repository.UserRepository;
-import com.smartgarage.api.security.CustomUserDetails;
 import com.smartgarage.api.security.JwtUtil;
 import com.smartgarage.api.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +26,6 @@ public class AuthServiceImpl implements AuthService {
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final AuthenticationManager authenticationManager;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
@@ -57,8 +54,8 @@ public class AuthServiceImpl implements AuthService {
                 customerRepository.save(customer);
             }
 
-            CustomUserDetails userDetails = new CustomUserDetails(savedUser);
-            String token = jwtUtil.generateToken(userDetails, savedUser.getRole().name());
+            UserDetails userDetails = buildUserDetails(savedUser);
+            String token = jwtUtil.generateToken(userDetails, savedUser.getRole().name(), savedUser.getId());
 
             log.info("New user registered: {}", savedUser.getUsername());
             return new AuthResponse(token, savedUser.getUsername(), savedUser.getRole().name(), savedUser.getId());
@@ -73,23 +70,26 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-            );
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new RuntimeException("Invalid username or password"));
 
-            User user = userRepository.findByUsername(request.getUsername())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-            CustomUserDetails userDetails = new CustomUserDetails(user);
-            String token = jwtUtil.generateToken(userDetails, user.getRole().name());
-
-            log.info("User logged in: {}", user.getUsername());
-            return new AuthResponse(token, user.getUsername(), user.getRole().name(), user.getId());
-
-        } catch (Exception ex) {
-            log.error("Login failed for {}: {}", request.getUsername(), ex.getMessage());
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            log.warn("Login failed for {}: bad password", request.getUsername());
             throw new RuntimeException("Invalid username or password");
         }
+
+        UserDetails userDetails = buildUserDetails(user);
+        String token = jwtUtil.generateToken(userDetails, user.getRole().name(), user.getId());
+
+        log.info("User logged in: {}", user.getUsername());
+        return new AuthResponse(token, user.getUsername(), user.getRole().name(), user.getId());
+    }
+
+    private UserDetails buildUserDetails(User user) {
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getUsername())
+                .password(user.getPassword())
+                .roles(user.getRole().name())
+                .build();
     }
 }

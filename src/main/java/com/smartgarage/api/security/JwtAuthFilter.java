@@ -1,11 +1,19 @@
 package com.smartgarage.api.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smartgarage.api.constant.CommonResponse;
+import com.smartgarage.api.constant.ResponseCode;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +24,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * Validates the JWT on each request. Matches the reference project's pattern:
+ * specific JWT exceptions (expired / bad signature / malformed) are caught
+ * individually and turned into a clean CommonResponse JSON body instead of
+ * bubbling up as a generic 500 error.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -23,6 +37,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
+    private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -50,10 +65,26 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
+
+            filterChain.doFilter(request, response);
+
+        } catch (ExpiredJwtException ex) {
+            handleJwtException(response, "Token expired, please log in again");
+        } catch (SignatureException ex) {
+            handleJwtException(response, "Invalid token signature");
+        } catch (MalformedJwtException ex) {
+            handleJwtException(response, "Invalid token format");
         } catch (Exception ex) {
             log.error("JWT authentication error: {}", ex.getMessage());
+            handleJwtException(response, "Authentication failed");
         }
+    }
 
-        filterChain.doFilter(request, response);
+    private void handleJwtException(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+        CommonResponse errorResponse = new CommonResponse(ResponseCode.UNAUTHORIZED, message);
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }
